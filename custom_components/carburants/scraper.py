@@ -1,4 +1,4 @@
-"""Lecture des prix collaboratifs sur mon-essence.fr."""
+"""Lecture des prix collaboratifs"""
 from __future__ import annotations
 
 import html as html_lib
@@ -39,7 +39,7 @@ def slugify(text: str) -> str:
 
 
 def parse_city_ref(value: str) -> str | None:
-    """Accepte une URL mon-essence ou un identifiant « 28508-le-mans »."""
+    """Accepte une ville."""
     value = value.strip().lower()
     m = re.search(r"/ville/(\d+-[a-z0-9-]+)", value) or re.fullmatch(
         r"(\d+-[a-z0-9-]+)", value
@@ -48,7 +48,7 @@ def parse_city_ref(value: str) -> str | None:
 
 
 async def resolve_city(session: aiohttp.ClientSession, text: str) -> str | None:
-    """Nom de ville / URL / identifiant -> identifiant mon-essence."""
+    """Nom de ville."""
     ref = parse_city_ref(text)
     if ref:
         return ref

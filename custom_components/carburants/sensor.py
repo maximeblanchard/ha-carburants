@@ -104,7 +104,7 @@ class CarburantSensor(CoordinatorEntity[CarburantCoordinator], SensorEntity):
                 f"Carburant {FUELS[coordinator.fuel]} - {coordinator.city} "
                 f"({int(coordinator.radius)} km)"
             ),
-            manufacturer="mon-essence.fr",
+            manufacturer="maximeblanchard",
             entry_type="service",
         )
 

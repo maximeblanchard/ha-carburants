@@ -1,0 +1,23 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Carburants",
+        "description": "Crowd-sourced prices from API. For the city, enter its name (e.g. Paris). The radius is measured from the city centre.",
+        "data": {
+          "city_input": "City",
+          "fuel_type": "Fuel type",
+          "radius_km": "Search radius (km)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Unable to reach API.",
+      "city_not_found": "City not found. Paste its API page URL.",
+      "no_stations": "No station with a price for this fuel on this page.",
+      "no_stations_in_radius": "No station with a price in this radius. Increase the distance.",
+      "parse_error": "The API page could not be read (unexpected format)."
+    },
+    "abort": { "already_configured": "This city / fuel / radius combination is already configured." }
+  }
+}

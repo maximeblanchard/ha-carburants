@@ -1,0 +1,23 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "HA Carburants",
+        "description": "Prix pour la ville, saisis son nom (ex. Paris)",
+        "data": {
+          "city_input": "Ville ",
+          "fuel_type": "Carburant",
+          "radius_km": "Rayon de recherche (km)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Impossible de joindre l'API.",
+      "city_not_found": "Ville introuvable.",
+      "no_stations": "Aucune station avec un prix pour ce carburant sur cette page.",
+      "no_stations_in_radius": "Aucune station avec un prix dans ce rayon. Augmente la distance.",
+      "parse_error": "La page de l'API n'a pas pu être lue (format inattendu)."
+    },
+    "abort": { "already_configured": "Cette combinaison ville / carburant / rayon est déjà configurée." }
+  }
+}

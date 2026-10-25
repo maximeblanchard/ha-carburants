@@ -37,7 +37,7 @@ class CarburantCoordinator(DataUpdateCoordinator[list[dict]]):
             raise UpdateFailed(f"Erreur de récupération : {err}") from err
         except PageFormatError as err:
             raise UpdateFailed(
-                "Page mon-essence illisible (le site a peut-être changé)"
+                "Page API illisible"
             ) from err
         # liste vide possible : pénurie dans la zone -> capteurs sans valeur
         return within_radius(stations, self.radius)
