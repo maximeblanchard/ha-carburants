@@ -42,19 +42,18 @@ Home Assistant et sont utilisables dans des cartes historiques.
 Deux méthodes sont disponibles :
 
 1. **Depuis la fiche de l'appareil** : le bouton natif **« Visiter »** de l'appareil ouvre directement l'itinéraire vers la station la moins chère dans Google Maps (ou votre application GPS par défaut sur mobile).
-2. **Depuis un tableau de bord (Dashboard)** : ajoutez une carte Markdown contenant un bouton cliquable qui s'actualise automatiquement avec la station la moins chère :
+2. **Depuis un tableau de bord (Dashboard)** : ajoutez une carte **Markdown** et collez directement ce code dans la case **« Contenu »** (le capteur est détecté automatiquement, rien à modifier) :
 
-```yaml
-type: markdown
-content: >
-  ### ⛽ {{ states('sensor.carburant_sp95_e10_paris_10_km_station_la_moins_chere') }}
-  **{{ states('sensor.carburant_sp95_e10_paris_10_km_prix_le_plus_bas') }} €/L**
-  ({{ states('sensor.carburant_sp95_e10_paris_10_km_distance_de_la_station') }} km)
+```jinja2
+{% set s = integration_entities('carburants') | select('search', 'prix_le_plus_bas') | first %}
+{% set maps = state_attr(s, 'google_maps_url') or ('https://www.google.com/maps/dir/?api=1&destination=' ~ (state_attr(s, 'station') | urlencode)) %}
+### ⛽ {{ state_attr(s, 'station') }}
+**{{ states(s) }} €/L** — à {{ state_attr(s, 'distance_km') }} km
 
-  [🗺️ Y aller avec Google Maps]({{ state_attr('sensor.carburant_sp95_e10_paris_10_km_prix_le_plus_bas', 'google_maps_url') }})
-  ·
-  [🚗 Waze]({{ state_attr('sensor.carburant_sp95_e10_paris_10_km_prix_le_plus_bas', 'waze_url') }})
+[🗺️ Ouvrir l'itinéraire dans Google Maps]({{ maps }})
 ```
+
+*(Si vous avez configuré plusieurs villes ou carburants et souhaitez en cibler un en particulier, remplacez simplement la 1re ligne par `{% set s = 'sensor.votre_capteur_prix_le_plus_bas' %}`).*
 
 ## Installation
 
