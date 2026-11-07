@@ -2,8 +2,7 @@
 
 # Carburants — Home Assistant
 
-Intégration personnalisée Home Assistant qui récupère les prix  des carburants autour de votre ville et vous indique la **station la moins
-chère** dans le rayon de votre choix, directement dans des capteurs.
+Intégration personnalisée Home Assistant qui récupère les prix des carburants autour de votre ville et vous indique la **station la moins chère** dans le rayon de votre choix, directement dans des capteurs.
 
 ## Indicateurs fournis
 
@@ -22,15 +21,40 @@ Le capteur **Prix le plus bas** porte aussi en attributs :
 | Attribut | Description |
 |---|---|
 | `station` | Nom de la station la moins chère |
+| `adresse` | Adresse complète de la station |
 | `distance_km` | Distance depuis le centre de la ville |
-| `verification` | État affiché  (« Vérifié aujourd'hui », « Vigilance prix »…) |
+| `verification` | État affiché (« Vérifié aujourd'hui », « Vigilance prix »…) |
+| `latitude` / `longitude` | Coordonnées GPS de la station (utilisables sur une carte Home Assistant) |
+| `google_maps_url` | Lien d'itinéraire Google Maps (ouvre l'application GPS sur mobile) |
+| `waze_url` | Lien de navigation Waze |
 | `rayon_km` | Rayon configuré |
-| `classement` | Les 10 stations les moins chères de la zone (station, prix, distance, vérification) |
+| `classement` | Les 10 stations les moins chères de la zone (station, prix, distance, vérification, `google_maps_url`) |
+
+Le capteur **Station la moins chère** expose également `adresse`, `latitude`, `longitude`, `google_maps_url` et `waze_url` pour pouvoir l'afficher directement sur une carte Home Assistant (`type: map`).
 
 Carburants disponibles : **Gazole, SP95-E10, SP95, SP98, E85, GPL**.
 
 Les capteurs de prix ont `state_class: measurement` : ils alimentent les statistiques de
 Home Assistant et sont utilisables dans des cartes historiques.
+
+## Ouvrir l'itinéraire sur téléphone (Google Maps / GPS)
+
+Deux méthodes sont disponibles :
+
+1. **Depuis la fiche de l'appareil** : le bouton natif **« Visiter »** de l'appareil ouvre directement l'itinéraire vers la station la moins chère dans Google Maps (ou votre application GPS par défaut sur mobile).
+2. **Depuis un tableau de bord (Dashboard)** : ajoutez une carte Markdown contenant un bouton cliquable qui s'actualise automatiquement avec la station la moins chère :
+
+```yaml
+type: markdown
+content: >
+  ### ⛽ {{ states('sensor.carburant_sp95_e10_paris_10_km_station_la_moins_chere') }}
+  **{{ states('sensor.carburant_sp95_e10_paris_10_km_prix_le_plus_bas') }} €/L**
+  ({{ states('sensor.carburant_sp95_e10_paris_10_km_distance_de_la_station') }} km)
+
+  [🗺️ Y aller avec Google Maps]({{ state_attr('sensor.carburant_sp95_e10_paris_10_km_prix_le_plus_bas', 'google_maps_url') }})
+  ·
+  [🚗 Waze]({{ state_attr('sensor.carburant_sp95_e10_paris_10_km_prix_le_plus_bas', 'waze_url') }})
+```
 
 ## Installation
 
@@ -46,14 +70,14 @@ Sans le bouton, manuellement :
 3. Installer "Carburants", redémarrer Home Assistant
 
 ### Manuelle
-1. Copier le dossier `custom_components/ha_carburants` dans `config/custom_components/`
+1. Copier le dossier `custom_components/carburants` dans `config/custom_components/`
 2. Redémarrer Home Assistant
 
 ## Configuration
 
 Paramètres → Appareils et services → Ajouter une intégration → "Carburants"
 
-[![Ouvrir dans Home Assistant et configurer l'intégration](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=ha_carburants)
+[![Ouvrir dans Home Assistant et configurer l'intégration](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=carburants)
 
 - **Ville** : le nom de la ville (ex. `Paris`)
 - **Carburant** : le carburant à suivre
@@ -69,7 +93,7 @@ nouvelle entrée de l'intégration.
 - Les stations en pénurie ou indisponibles (sans prix) sont ignorées.
 - Si aucune station n'a de prix dans la zone, les capteurs deviennent sans valeur jusqu'à la
   prochaine actualisation réussie.
-- Actualisation toutes les 30 minutes. Forcer une mise à jour : action
+- Actualisation toutes les 240 minutes (4 heures). Forcer une mise à jour : action
   `homeassistant.update_entity` sur un capteur Carburants.
 
 ### Exemple d'automatisation
@@ -88,15 +112,17 @@ automation:
           message: >
             {{ states('sensor.carburant_sp95_e10_paris_10_km_station_la_moins_chere') }}
             à {{ states('sensor.carburant_sp95_e10_paris_10_km_prix_le_plus_bas') }} €/L
+          data:
+            url: "{{ state_attr('sensor.carburant_sp95_e10_paris_10_km_prix_le_plus_bas', 'google_maps_url') }}"
+            clickAction: "{{ state_attr('sensor.carburant_sp95_e10_paris_10_km_prix_le_plus_bas', 'google_maps_url') }}"
 ```
 
 ## Notes
 
-- **Le rayon est mesuré par  depuis le centre de la ville**, pas depuis votre domicile.
+- **Le rayon est mesuré depuis le centre de la ville**, pas depuis votre domicile.
   Choisissez un rayon un peu plus large si vous habitez en périphérie.
 - Les prix de plusieurs stations d'une même enseigne peuvent être identiques (prix plafonnés
   ou alignés) : ce n'est pas un défaut de lecture.
-
 
 ## Dépannage
 
@@ -105,12 +131,11 @@ Pour obtenir des logs détaillés, ajoutez dans `configuration.yaml` :
 ```yaml
 logger:
   logs:
-    custom_components.ha_carburants: debug
+    custom_components.carburants: debug
 ```
 
 - **Aucune station dans ce rayon** : augmentez la distance, ou vérifiez que ce carburant est
   vendu dans la zone.
-
 - **Capteurs indisponibles** : le site a répondu en erreur, les valeurs reviennent à la
   prochaine actualisation réussie.
 

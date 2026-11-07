@@ -2,7 +2,7 @@
   "config": {
     "step": {
       "user": {
-        "title": "HA Carburants",
+        "title": "Carburants",
         "description": "Prix pour la ville, saisis son nom (ex. Paris)",
         "data": {
           "city_input": "Ville ",

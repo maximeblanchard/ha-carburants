@@ -98,6 +98,11 @@ class CarburantSensor(CoordinatorEntity[CarburantCoordinator], SensorEntity):
         super().__init__(coordinator)
         self.entity_description = description
         self._attr_unique_id = f"{entry.entry_id}_{description.key}"
+        maps_url = (
+            coordinator.data[0].get("google_maps_url")
+            if coordinator.data
+            else None
+        )
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, entry.entry_id)},
             name=(
@@ -106,6 +111,7 @@ class CarburantSensor(CoordinatorEntity[CarburantCoordinator], SensorEntity):
             ),
             manufacturer="maximeblanchard",
             entry_type="service",
+            configuration_url=maps_url,
         )
 
     @property
@@ -114,13 +120,29 @@ class CarburantSensor(CoordinatorEntity[CarburantCoordinator], SensorEntity):
 
     @property
     def extra_state_attributes(self) -> dict[str, Any] | None:
-        if self.entity_description.key != "prix_min" or not self.coordinator.data:
+        if not self.coordinator.data:
             return None
         best = self.coordinator.data[0]
+        if self.entity_description.key == "station":
+            return {
+                "adresse": best.get("adresse"),
+                "latitude": best.get("latitude"),
+                "longitude": best.get("longitude"),
+                "google_maps_url": best.get("google_maps_url"),
+                "waze_url": best.get("waze_url"),
+                "url": best["url"],
+            }
+        if self.entity_description.key != "prix_min":
+            return None
         return {
             "station": best["station"],
+            "adresse": best.get("adresse"),
             "distance_km": best["distance_km"],
             "verification": best["verification"],
+            "latitude": best.get("latitude"),
+            "longitude": best.get("longitude"),
+            "google_maps_url": best.get("google_maps_url"),
+            "waze_url": best.get("waze_url"),
             "url": best["url"],
             "rayon_km": self.coordinator.radius,
             "classement": [
@@ -129,6 +151,7 @@ class CarburantSensor(CoordinatorEntity[CarburantCoordinator], SensorEntity):
                     "prix": s["prix"],
                     "distance_km": s["distance_km"],
                     "verification": s["verification"],
+                    "google_maps_url": s.get("google_maps_url"),
                 }
                 for s in self.coordinator.data[:TOP_N]
             ],

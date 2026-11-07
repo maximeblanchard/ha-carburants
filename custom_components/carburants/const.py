@@ -26,5 +26,5 @@ HEADERS = {
     "Accept-Language": "fr-FR,fr;q=0.9",
 }
 
-SCAN_INTERVAL = timedelta(minutes=120)
+SCAN_INTERVAL = timedelta(minutes=240)
 TOP_N = 10
